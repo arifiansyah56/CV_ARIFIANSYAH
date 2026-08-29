@@ -2,5 +2,7 @@
   "name": "Muhammad Arifiansyah - Civil Engineer Portfolio",
   "description": "Professional portfolio for Muhammad Arifiansyah, a Civil Engineer with 5+ years of experience in construction management and structural design.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
