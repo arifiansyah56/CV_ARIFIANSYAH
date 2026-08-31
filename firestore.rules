@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /portfolio/{docId} {
+      allow read: if true;
+      allow write: if request.resource.data._securityToken == 'portfolio_admin_2024';
+    }
+    match /custom_users/{userId} {
+      allow read: if true;
+      allow write: if request.resource.data._securityToken == 'portfolio_admin_2024' || resource.data._securityToken == 'portfolio_admin_2024';
+    }
+  }
+}

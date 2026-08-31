@@ -24,14 +24,7 @@ import {
   Check,
   Send
 } from 'lucide-react';
-import {
-  experienceData,
-  skillsData,
-  educationData,
-  certificationsData,
-  leadershipData,
-  projectsData,
-} from './data';
+import { usePortfolio } from './lib/PortfolioContext';
 
 // --- Fade In Component ---
 interface FadeInProps {
@@ -336,6 +329,7 @@ const Summary = () => {
 
 // --- Experience Section ---
 const Experience = () => {
+  const { experienceData } = usePortfolio();
   return (
     <section id="experience" className="py-24 bg-white dark:bg-slate-900 relative transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-6 lg:px-8">
@@ -372,6 +366,7 @@ const Experience = () => {
 
 // --- Projects Section ---
 const Projects = () => {
+  const { projectsData } = usePortfolio();
   const [selectedProject, setSelectedProject] = useState<typeof projectsData[0] | null>(null);
 
   useEffect(() => {
@@ -544,6 +539,7 @@ const Projects = () => {
 
 // --- Skills Section ---
 const Skills = () => {
+  const { skillsData } = usePortfolio();
   return (
     <section id="skills" className="py-24 bg-white dark:bg-slate-900 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -585,6 +581,7 @@ const Skills = () => {
 
 // --- Education Section ---
 const Education = () => {
+  const { educationData, certificationsData, leadershipData } = usePortfolio();
   return (
     <section id="education" className="py-24 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <div className="max-w-5xl mx-auto px-6 lg:px-8">
@@ -793,22 +790,37 @@ const Footer = () => {
           </FadeIn>
         </div>
 
-        <div className="text-center pt-8 border-t border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-500 text-sm transition-colors">
+        <div className="text-center pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center text-slate-500 dark:text-slate-500 text-sm transition-colors">
           <p>Copyright &copy; 2026 Muhammad Arifiansyah. All rights reserved.</p>
+          <a href="#admin" className="mt-4 md:mt-0 opacity-50 hover:opacity-100 hover:text-orange-500 transition-all">
+            Admin Login
+          </a>
         </div>
       </div>
     </footer>
   );
 };
 
+import { AdminDashboard } from './components/AdminDashboard';
+import { usePortfolioData } from './hooks/usePortfolioData';
+import { PortfolioProvider } from './lib/PortfolioContext';
+
 function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [hash, setHash] = useState(window.location.hash);
+  const { data, loading } = usePortfolioData();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001
   });
+
+  useEffect(() => {
+    const handleHashChange = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   useEffect(() => {
     // Check local storage or system preference on mount
@@ -833,23 +845,37 @@ function App() {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (hash === '#admin') {
+    return <AdminDashboard />;
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-orange-500/30 selection:text-orange-900 dark:selection:text-orange-100 transition-colors duration-300">
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-orange-500 origin-left z-[100]"
-        style={{ scaleX }}
-      />
-      <Navbar theme={theme} toggleTheme={toggleTheme} />
-      <main>
-        <Hero />
-        <Summary />
-        <Experience />
-        <Projects />
-        <Skills />
-        <Education />
-      </main>
-      <Footer />
-    </div>
+    <PortfolioProvider data={data}>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-orange-500/30 selection:text-orange-900 dark:selection:text-orange-100 transition-colors duration-300">
+        <motion.div
+          className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 origin-left z-[100] shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+          style={{ scaleX }}
+        />
+        <Navbar theme={theme} toggleTheme={toggleTheme} />
+        <main>
+          <Hero />
+          <Summary />
+          <Experience />
+          <Projects />
+          <Skills />
+          <Education />
+        </main>
+        <Footer />
+      </div>
+    </PortfolioProvider>
   );
 }
 

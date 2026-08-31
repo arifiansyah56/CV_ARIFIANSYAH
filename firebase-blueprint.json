@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "roles": {
+      "type": "collection",
+      "description": "User roles for RBAC. Documents are keyed by user UID.",
+      "rules": {
+        "read": "request.auth != null && request.auth.uid == document",
+        "write": "false"
+      },
+      "schema": {
+        "role": "admin"
+      }
+    },
+    "portfolio": {
+      "type": "collection",
+      "description": "Singleton collection holding the portfolio data. Document ID will be 'data'.",
+      "rules": {
+        "read": "true",
+        "write": "isAdmin()"
+      },
+      "schema": {
+        "projects": [],
+        "experiences": [],
+        "education": [],
+        "skills": []
+      }
+    }
+  },
+  "custom_rules": [
+    "function isAdmin() { return request.auth != null && get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role == 'admin'; }"
+  ]
+}
